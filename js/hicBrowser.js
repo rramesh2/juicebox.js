@@ -115,10 +115,14 @@ var hic = (function (hic) {
                 if (config.tracks) {
                     browser.loadTracks(config.tracks);
                 }
-
-                if (typeof callback === "function") callback();
-
             })
+            .then(function (ignore) {
+                return loadControlFile(config);
+            })
+            .then(function (ignore) {
+                if (typeof callback === "function") callback();
+            })
+
             .catch(function (error) {
                 hic.presentError("Error loading " + (config.name || config.url), error);
             })
@@ -177,6 +181,15 @@ var hic = (function (hic) {
                 return Promise.resolve(config.dataset);
             }
             else {
+                return Promise.resolve(undefined);
+            }
+        }
+
+        // Load the control file, if any
+        function loadControlFile(config) {
+            if (config.controlUrl) {
+                return browser.loadHicControlFile(config);
+            } else {
                 return Promise.resolve(undefined);
             }
         }
@@ -367,7 +380,6 @@ var hic = (function (hic) {
         }
 
     };
-
 
 
     hic.Browser.getCurrentBrowser = function () {
@@ -1508,7 +1520,7 @@ var hic = (function (hic) {
         var self = this;
 
         if ("LocusChange" === event.type) {
-            
+
             if (event.propogate) {
 
                 self.synchedBrowsers.forEach(function (browser) {
@@ -1516,7 +1528,7 @@ var hic = (function (hic) {
                 })
 
             }
-            
+
             this.update(event);
         }
 
